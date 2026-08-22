@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ai-stock-pulse.fullname" . }}-agent
+  labels:
+    {{- include "ai-stock-pulse.labels" . | nindent 4 }}
+    app.kubernetes.io/component: agent
+spec:
+  replicas: {{ .Values.agent.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "ai-stock-pulse.name" . }}-agent
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      annotations:
+        checksum/secrets: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
+      labels:
+        app.kubernetes.io/name: {{ include "ai-stock-pulse.name" . }}-agent
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: agent
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+      containers:
+        - name: agent
+          image: "{{ .Values.agent.image.repository }}:{{ .Values.agent.image.tag }}"
+          imagePullPolicy: {{ .Values.agent.image.pullPolicy }}
+          env:
+            - name: BACKEND_URL
+              value: "http://{{ include "ai-stock-pulse.fullname" . }}-backend:{{ .Values.backend.service.port }}"
+            - name: DEFAULT_USER_ID
+              value: {{ .Values.global.defaultUserId | quote }}
+            - name: POLL_INTERVAL_SECONDS
+              value: {{ .Values.agent.env.pollIntervalSeconds | quote }}
+            - name: RUN_ON_STARTUP
+              value: {{ .Values.agent.env.runOnStartup | quote }}
+            - name: NOISE_THRESHOLD_PCT
+              value: {{ .Values.agent.env.noiseThresholdPct | quote }}
+            - name: MOMENTUM_THRESHOLD_PCT
+              value: {{ .Values.agent.env.momentumThresholdPct | quote }}
+            - name: ALERT_COOLDOWN_HOURS
+              value: {{ .Values.agent.env.alertCooldownHours | quote }}
+            - name: EVENT_FRESHNESS_HOURS
+              value: {{ .Values.agent.env.eventFreshnessHours | quote }}
+            - name: MARKET_DATA_PROVIDER
+              value: {{ .Values.agent.env.marketDataProvider | quote }}
+            - name: LLM_BASE_URL
+              value: {{ .Values.agent.env.llmBaseUrl | quote }}
+            - name: LLM_MODEL
+              value: {{ .Values.agent.env.llmModel | quote }}
+            - name: LLM_FALLBACK_MODELS
+              value: {{ .Values.agent.env.llmFallbackModels | quote }}
+            - name: FINNHUB_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ai-stock-pulse.secretName" . }}
+                  key: FINNHUB_API_KEY
+            - name: LLM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ai-stock-pulse.secretName" . }}
+                  key: LLM_API_KEY
+            - name: TELEGRAM_BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ai-stock-pulse.secretName" . }}
+                  key: TELEGRAM_BOT_TOKEN
+            - name: TELEGRAM_CHAT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ai-stock-pulse.secretName" . }}
+                  key: TELEGRAM_CHAT_ID
+          startupProbe:
+            exec:
+              command: ["python", "-m", "app.healthcheck"]
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30
+          livenessProbe:
+            exec:
+              command: ["python", "-m", "app.healthcheck"]
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          resources:
+            {{- toYaml .Values.agent.resources | nindent 12 }}

@@ -1,0 +1,114 @@
+global:
+  environment: dev
+  defaultUserId: default-user
+
+# []  e.g. [{ name: ghcr-pull }] for private GHCR images
+imagePullSecrets: []
+
+# Database Configuration
+postgres:
+  enabled: true
+  image:
+    repository: postgres
+    tag: "16-alpine"
+    pullPolicy: IfNotPresent
+  persistence:
+    size: 1Gi
+    storageClassName: "" # empty = cluster default StorageClass
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  credentials:
+    dbName: stock_pulse
+    username: pulse
+    password: pulse_local_password
+
+# Backend API Configuration (NestJS)
+backend:
+  replicaCount: 1
+  image:
+    repository: ghcr.io/omrihalpert/ai-stock-backend
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 3000
+  env:
+    corsOrigins: "*"
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+# AI Worker Agent Configuration (Python)
+# Keep replicaCount at 1 — extra replicas would double-scan and double-alert.
+agent:
+  replicaCount: 1
+  image:
+    repository: ghcr.io/omrihalpert/ai-stock-agent
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 512Mi
+  env:
+    pollIntervalSeconds: "900"
+    runOnStartup: "true"
+    noiseThresholdPct: "0.5"
+    momentumThresholdPct: "3.5"
+    alertCooldownHours: "0"
+    eventFreshnessHours: "36"
+    # mock = no API key; set finnhub plus secrets.finnhubApiKey for live quotes
+    marketDataProvider: mock
+    llmBaseUrl: "https://openrouter.ai/api/v1"
+    llmModel: "google/gemma-4-26b-a4b-it:free"
+    llmFallbackModels: "openai/gpt-oss-20b:free,nvidia/nemotron-3-super-120b-a12b:free"
+
+# Frontend UI Configuration (React + Nginx)
+frontend:
+  replicaCount: 1
+  image:
+    repository: ghcr.io/omrihalpert/ai-stock-frontend
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+  resources:
+    requests:
+      cpu: 20m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 64Mi
+
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  annotations: {}
+  tls: []
+  # tls:
+  #   - secretName: ai-stock-pulse-tls
+  #     hosts:
+  #       - pulse.example.com
+
+# Leave tokens empty here. Pass them at install time (see README / NOTES).
+# Do not commit live keys. Use secrets.existingSecret to point at a pre-created Secret.
+secrets:
+  existingSecret: ""
+  telegramBotToken: ""
+  telegramChatId: ""
+  llmApiKey: ""
+  finnhubApiKey: ""

@@ -1,0 +1,6 @@
+.DS_Store
+.git
+.gitignore
+*.tgz
+values-secrets.yaml
+values-*-secrets.yaml

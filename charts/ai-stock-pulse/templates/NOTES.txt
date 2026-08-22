@@ -1,0 +1,55 @@
+1. AI Stock Pulse installed as release {{ .Release.Name }} in namespace {{ .Release.Namespace }}.
+
+2. Pass API tokens at install time. Do not put live keys in git.
+
+   Copy the example and fill it in (the real file is gitignored):
+
+     cp charts/ai-stock-pulse/values-secrets.yaml.example values-secrets.yaml
+
+   Then:
+
+     helm upgrade --install {{ .Release.Name }} {{ .Chart.Name }} \
+       -f values-dev.yaml \
+       -f values-secrets.yaml
+
+   Or set individual keys:
+
+     helm upgrade --install {{ .Release.Name }} {{ .Chart.Name }} \
+       --set secrets.telegramBotToken=<token> \
+       --set secrets.telegramChatId=<chat-id> \
+       --set secrets.llmApiKey=<key> \
+       --set secrets.finnhubApiKey=<key>
+
+   To use a Secret you already created (must include DATABASE_URL, POSTGRES_*,
+   TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, LLM_API_KEY, FINNHUB_API_KEY):
+
+     --set secrets.existingSecret=my-pulse-secrets
+
+3. Images default to pullPolicy IfNotPresent. For a local cluster, build and load:
+
+     docker compose -f ai-stock-pulse/docker-compose.yaml build
+     # kind load docker-image ...   or   minikube image load ...
+
+   Override repository/tag in values if your local image names differ.
+   Private GHCR images need imagePullSecrets.
+
+4. Access
+
+{{- if .Values.ingress.enabled }}
+{{- if .Values.ingress.host }}
+     http://{{ .Values.ingress.host }}
+{{- else }}
+     Ingress is enabled with no host. Point your ingress controller at this
+     release, or port-forward:
+
+       kubectl port-forward svc/{{ include "ai-stock-pulse.fullname" . }}-frontend 8080:{{ .Values.frontend.service.port }}
+{{- end }}
+{{- else }}
+     kubectl port-forward svc/{{ include "ai-stock-pulse.fullname" . }}-frontend 8080:{{ .Values.frontend.service.port }}
+{{- end }}
+
+   The frontend nginx ConfigMap proxies /api to the in-cluster backend, so
+   port-forwarding the frontend Service is enough for the dashboard.
+
+5. Optional live market data: set agent.env.marketDataProvider=finnhub and
+   secrets.finnhubApiKey. Without a key the agent uses mock prices.
