@@ -4,15 +4,15 @@ global:
 backend:
   replicaCount: 1
   image:
-    tag: "7c3bfaf"
+    tag: "3e286fe"
 frontend:
   replicaCount: 1
   image:
-    tag: "7c3bfaf"
+    tag: "3e286fe"
 agent:
   replicaCount: 1
   image:
-    tag: "7c3bfaf"
+    tag: "3e286fe"
   env:
     marketDataProvider: finnhub
 
