@@ -2,7 +2,7 @@ global:
   environment: dev
 
 backend:
-  replicaCount: 2
+  replicaCount: 1
 
 frontend:
   replicaCount: 1
