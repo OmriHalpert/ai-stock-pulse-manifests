@@ -3,12 +3,18 @@ global:
 
 backend:
   replicaCount: 1
+  image:
+    tag: "1.0.0"
 
 frontend:
   replicaCount: 1
+  image:
+    tag: "1.0.0"
 
 agent:
   replicaCount: 1
+  image:
+    tag: "1.0.0"
   env:
     marketDataProvider: finnhub
 
@@ -17,7 +23,5 @@ ingress:
   className: ""
   host: ""
 
-# Copy to a gitignored values-secrets.yaml and fill in, then:
-#   helm upgrade --install pulse ./charts/ai-stock-pulse -f values-dev.yaml -f values-secrets.yaml
 secrets:
   existingSecret: stock-pulse-secrets
