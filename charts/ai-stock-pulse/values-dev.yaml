@@ -2,7 +2,7 @@ global:
   environment: dev
 
 backend:
-  replicaCount: 0
+  replicaCount: 1
   image:
     tag: "3e286fe"
 frontend:
