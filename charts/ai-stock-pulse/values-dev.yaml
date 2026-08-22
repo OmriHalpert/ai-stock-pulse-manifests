@@ -20,7 +20,4 @@ ingress:
 # Copy to a gitignored values-secrets.yaml and fill in, then:
 #   helm upgrade --install pulse ./charts/ai-stock-pulse -f values-dev.yaml -f values-secrets.yaml
 secrets:
-  telegramBotToken: ""
-  telegramChatId: ""
-  llmApiKey: ""
-  finnhubApiKey: ""
+  existingSecret: stock-pulse-secrets
