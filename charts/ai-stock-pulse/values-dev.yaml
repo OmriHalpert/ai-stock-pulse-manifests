@@ -4,17 +4,17 @@ global:
 backend:
   replicaCount: 1
   image:
-    repository: 661985535801.dkr.ecr.eu-west-1.amazonaws.com/ai-stock-pulse-dev-backend
+    repository: 661985535801.dkr.ecr.eu-west-1.amazonaws.com/ai-stock-pulse/backend
     tag: "v1.0.0"
 frontend:
   replicaCount: 1
   image:
-    repository: 661985535801.dkr.ecr.eu-west-1.amazonaws.com/ai-stock-pulse-dev-frontend
+    repository: 661985535801.dkr.ecr.eu-west-1.amazonaws.com/ai-stock-pulse/frontend
     tag: "v1.0.0"
 agent:
   replicaCount: 1
   image:
-    repository: 661985535801.dkr.ecr.eu-west-1.amazonaws.com/ai-stock-pulse-dev-agent
+    repository: 661985535801.dkr.ecr.eu-west-1.amazonaws.com/ai-stock-pulse/agent
     tag: "v1.0.0"
   env:
     marketDataProvider: finnhub
