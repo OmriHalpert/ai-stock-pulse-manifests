@@ -4,22 +4,33 @@ global:
 backend:
   replicaCount: 1
   image:
-    tag: "3e286fe"
+    repository: 661985535801.dkr.ecr.eu-west-1.amazonaws.com/ai-stock-pulse-dev-backend
+    tag: "v1.0.0"
 frontend:
   replicaCount: 1
   image:
-    tag: "3e286fe"
+    repository: 661985535801.dkr.ecr.eu-west-1.amazonaws.com/ai-stock-pulse-dev-frontend
+    tag: "v1.0.0"
 agent:
   replicaCount: 1
   image:
-    tag: "3e286fe"
+    repository: 661985535801.dkr.ecr.eu-west-1.amazonaws.com/ai-stock-pulse-dev-agent
+    tag: "v1.0.0"
   env:
     marketDataProvider: finnhub
+postgres:
+  enabled: false
 
 ingress:
   enabled: true
-  className: ""
-  host: ""
+  className: alb
+  host: app.ai-stuck-pulse.xyz
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:eu-west-1:661985535801:certificate/87f1910a-5152-4d5f-be36-b3b58317533f
 
 secrets:
   existingSecret: stock-pulse-secrets
