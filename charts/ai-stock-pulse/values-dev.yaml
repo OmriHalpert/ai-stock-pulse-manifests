@@ -5,17 +5,17 @@ backend:
   replicaCount: 1
   image:
     repository: 661985535801.dkr.ecr.eu-west-1.amazonaws.com/ai-stock-pulse/backend
-    tag: "4c5e484"
+    tag: "5256700"
 frontend:
   replicaCount: 1
   image:
     repository: 661985535801.dkr.ecr.eu-west-1.amazonaws.com/ai-stock-pulse/frontend
-    tag: "4c5e484"
+    tag: "5256700"
 agent:
   replicaCount: 1
   image:
     repository: 661985535801.dkr.ecr.eu-west-1.amazonaws.com/ai-stock-pulse/agent
-    tag: "4c5e484"
+    tag: "5256700"
   env:
     marketDataProvider: finnhub
 postgres:
