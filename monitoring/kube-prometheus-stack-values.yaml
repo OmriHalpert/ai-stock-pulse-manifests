@@ -1,0 +1,38 @@
+# Slim values for a 3x t3.medium EKS cluster. No public Ingress yet.
+# Control-plane components (etcd, scheduler, controller-manager, kube-proxy)
+# run on AWS-managed nodes and are not scrapeable from the data plane.
+
+grafana:
+  ingress:
+    enabled: false
+  persistence:
+    enabled: false
+
+alertmanager:
+  alertmanagerSpec:
+    resources:
+      requests:
+        cpu: 20m
+        memory: 64Mi
+      limits:
+        memory: 128Mi
+
+prometheus:
+  prometheusSpec:
+    retention: 3d
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+      limits:
+        memory: 1536Mi
+    storageSpec: {}
+
+kubeEtcd:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false
