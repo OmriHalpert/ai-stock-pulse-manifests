@@ -5,7 +5,7 @@ Env names and probes match [ai-stock-pulse](../../ai-stock-pulse) / docker-compo
 
 ## Secrets
 
-Do **not** commit live API tokens. `values.yaml` ships empty placeholders.
+`values.yaml` ships empty placeholders.
 
 Required keys on the generated Secret (or on `secrets.existingSecret`):
 
