@@ -112,3 +112,7 @@ secrets:
   telegramChatId: ""
   llmApiKey: ""
   finnhubApiKey: ""
+
+# Requires Prometheus Operator CRDs (kube-prometheus-stack). Off for local without the Operator.
+metrics:
+  enabled: false

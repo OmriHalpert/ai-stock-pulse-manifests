@@ -35,3 +35,6 @@ ingress:
 
 secrets:
   existingSecret: stock-pulse-secrets
+
+metrics:
+  enabled: true
