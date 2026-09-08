@@ -6,7 +6,7 @@ metadata:
     {{- include "ai-stock-pulse.labels" . | nindent 4 }}
     app.kubernetes.io/component: backend
 spec:
-  replicas: 0 #{{ .Values.backend.replicaCount }}
+  replicas: {{ .Values.backend.replicaCount }}
   revisionHistoryLimit: 2
   selector:
     matchLabels:
