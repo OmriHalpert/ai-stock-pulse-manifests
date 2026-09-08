@@ -28,6 +28,8 @@ grafana:
 
 alertmanager:
   alertmanagerSpec:
+    # Secret is created by ESO (monitoring/alertmanager). Key must be alertmanager.yaml.
+    configSecret: alertmanager-telegram-config
     resources:
       requests:
         cpu: 20m
