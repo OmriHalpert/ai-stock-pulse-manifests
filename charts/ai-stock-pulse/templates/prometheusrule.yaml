@@ -1,0 +1,49 @@
+{{- if .Values.metrics.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "ai-stock-pulse.fullname" . }}-workloads
+  labels:
+    {{- include "ai-stock-pulse.labels" . | nindent 4 }}
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: ai-stock-pulse.workloads
+      rules:
+        - alert: StockPulseBackendUnavailable
+          expr: |
+            kube_deployment_status_replicas_available{
+              namespace="{{ .Release.Namespace }}",
+              deployment="{{ include "ai-stock-pulse.fullname" . }}-backend"
+            } == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: Backend has no available replicas
+            description: The backend Deployment in {{ .Release.Namespace }} has 0 ready pods for more than 2 minutes.
+        - alert: StockPulseFrontendUnavailable
+          expr: |
+            kube_deployment_status_replicas_available{
+              namespace="{{ .Release.Namespace }}",
+              deployment="{{ include "ai-stock-pulse.fullname" . }}-frontend"
+            } == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: Frontend has no available replicas
+            description: The frontend Deployment in {{ .Release.Namespace }} has 0 ready pods for more than 2 minutes.
+        - alert: StockPulseAgentUnavailable
+          expr: |
+            kube_deployment_status_replicas_available{
+              namespace="{{ .Release.Namespace }}",
+              deployment="{{ include "ai-stock-pulse.fullname" . }}-agent"
+            } == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: Agent has no available replicas
+            description: The agent Deployment in {{ .Release.Namespace }} has 0 ready pods for more than 2 minutes.
+{{- end }}
